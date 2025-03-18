@@ -2,9 +2,8 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
-#include <list>
-#include <unordered_set>
-#include <set>
+#include <queue>
+
 
 using namespace std;
 
@@ -14,19 +13,28 @@ int nl, nc, turrets;
 bool notPossible;
 
 
-void insertBloker(int x, int y){
-    blokersInCol[x].insert(y);
-    blokersInLine[y].insert(x);
+void insertBloker(int x, int y, vector<vector<tuple<int, int, bool>>> &noGoLine, vector<vector<tuple<int, int, bool>>> &noGoCol){
+    if (noGoCol[x].empty()) {
+        noGoCol[x].push_back(make_tuple(0, y, false));
+        noGoCol[x].push_back(make_tuple(y, nl, false));
+    }else{}
+    if (noGoLine[y].empty()) {
+        noGoLine[y].push_back(make_tuple(0, x, false));
+        noGoLine[y].push_back(make_tuple(x, nc, false));
+    }else{}
 }
-bool insertTurrets(int x, int y, char t){
+
+bool insertTurrets(int x, int y, char t, vector<vector<tuple<int, int, bool>>> &noGoLine, vector<vector<tuple<int, int, bool>>> &noGoCol){
     int n = t - '0';
     for (int i = 0; i < 4 ; i++){
-        if (n <= 0) return true;
-        auto segments = noGoLine.find();
-        if (segments != noGoLine.end());
+        if (4-i<n) return false;
+        if (n<=0) break;
+        //auto segments = noGoLine.find(); to be changed
+        //if (segments != noGoLine.end());
     }
 
-    if (n > 0)  return false;
+    turrets += t - '0';  
+    return true;
 }
 int main() {
     int n_test_cases;
@@ -37,13 +45,11 @@ int main() {
         cin >> nl;
         cin >> nc;
 
-        list<vector<pair<int, int>>> noGoLine[nl]; //y 
-        list<vector<pair<int, int>>> noGoCol[nc];  //x
-
-        list<set <int>> blokersInLine[nl];
-        list<set <int>> blokersInCol[nc];
+        vector<vector<tuple<int, int, bool>>> noGoLine[nl]; //y 
+        vector<vector<tuple<int, int, bool>>> noGoCol[nc];  //x
         
         string line;
+        queue<tuple<int, int , char>> startingTurrets;
 
         //ler a grid e para cada objeto fazer pré processamento
         for (int y = 0; y < nl; y++) {
@@ -51,8 +57,9 @@ int main() {
             for(int x; x < nc; x++ ){
                 if (isdigit(line[x]) ){
                         //add tower/bloker
-                        insertBloker(x, y);
+                        insertBloker(x, y, noGoLine, noGoCol);
                         //add n turrets around the tower
+                        startingTurrets.push(make_tuple(x,y, line[x]));
                         if((notPossible = !insertTurrets(x, y, line[x]))) {
                             cout << "noxus will rise!\n";
                             break;
