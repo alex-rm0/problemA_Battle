@@ -22,32 +22,44 @@ void insertBloker(int x, int y, vector<vector<tuple<int, int, bool>>> &noGoLine,
         col.push_back(make_tuple(0, y, false));
         col.push_back(make_tuple(y, n, false));
     }else{
-        int i= 0;
+        int i = 0, j = 0;
         int part = y/ m-1/col.size();
-        while (i<col.size()) {//i = (i+1)%col.size()) cicles forward 
+        while (j<col.size()) {//i = (i+1)%col.size()) cicles forward 
             if(y > get<0>(col[i]) && y < get<1>(col[i])){
                 col.insert(col.begin() + i+1 , make_tuple(y,get<1>(col[i]), false));
                 get<1>(col[i]) = y;
                 break;
             }else if(y == get<0>(col[i]) || y == get<1>(col[i])) break;
-            else if(y > get<1>(col[i])) i = (i+1)%col.size(); //forward
-            else i = (i-1)%col.size(); //back
+            else if(y > get<1>(col[i])){
+                i = (i+1)%col.size(); //forward
+                j++;
+            }
+            else{
+                i = (i-1)%col.size(); //back
+                j++;
+            }
+
         }
     }
     if (line.empty()) {
         line.push_back(make_tuple(0, x, false));
         line.push_back(make_tuple(x, m, false));
     }else{
-        int i= 0;
+        int i= 0, j = 0;
         int part = x/ n-1/line.size();
-        while (i < line.size()) {//i = (i+1)%line.size() cicles forward 
+        while (j < line.size()) {//i = (i+1)%line.size() cicles forward 
             if(x > get<0>(line[i]) && x < get<1>(line[i])){
                 line.insert(line.begin() + i+1 , make_tuple(x, get<1>(line[i]), false));
                 get<1>(line[i]) = x;
                 break;
             }else if(x == get<0>(line[i]) || x == get<1>(line[i])) break;
-            else if(x > get<1>(line[i])) i = (i+1)%line.size();
-            else i = (i-1)%line.size();
+            else if(x > get<1>(line[i])) {
+                i = (i+1)%line.size();
+                j++;
+            }else{
+                i = (i-1)%line.size();
+                j++;
+            } 
         }
     }
 }
@@ -61,42 +73,63 @@ bool canPlaceTurret(int x, int y) {
             line.push_back(make_tuple(0, m, true));
             return true;
         }else{
-            int i= 0;
+            int i= 0, j = 0;
             int part = x/ n-1/line.size();
-            while (i < line.size()) {//i = (i+1)%line.size() cicles forward 
+            while (j < line.size()) {//i = (i+1)%line.size() cicles forward 
                 if(x > get<0>(line[i]) && x < get<1>(line[i])){
                     col.push_back(make_tuple(0, n, true));
                     get<2>(line[i]) = true;
                     
                 }else if(x == get<0>(line[i]) || x == get<1>(line[i])) return false;
-                else if(x > get<1>(line[i])) i = (i+1)%line.size();
-                else i = (i-1)%line.size();
-            }
+                else if(x > get<1>(line[i])){
+                    i = (i+1)%line.size();
+                    j++;
+                } 
+                else {
+                    i = (i-1)%line.size();
+                    j++;
+                } 
+            }return false;
         }
 
     }else{
-        int i= 0;
+        int i = 0, j = 0;
         int part = y/ m-1/col.size();
-        while (i<col.size()) {//i = (i+1)%col.size()) cicles forward 
+        while (j<col.size()) {//i = (i+1)%col.size()) cicles forward 
             if(y > get<0>(col[i]) && y < get<1>(col[i])){
                 if (noGoLine.empty()) {
                     line.push_back(make_tuple(0, m, true));
                     get<2>(col[i]) = true;
                     return true;
                 }else{
-                    while (i < line.size()) {//i = (i+1)%line.size() cicles forward 
-                        if(x > get<0>(line[i]) && x < get<1>(line[i])){
-                            get<2>(col[i]) = true;
-                            get<2>(line[i]) = true;
-                        }else if(x == get<0>(line[i]) || x == get<1>(line[i])) return false;
-                        else if(x > get<1>(line[i])) i = (i+1)%line.size();
-                        else i = (i-1)%line.size();
+                    int ii = 0, jj = 0;
+                    while (jj < line.size()) {//i = (i+1)%line.size() cicles forward 
+                        if(x > get<0>(line[ii]) && x < get<1>(line[ii])){
+                            get<2>(col[ii]) = true;
+                            get<2>(line[ii]) = true;
+                        }else if(x == get<0>(line[ii]) || x == get<1>(line[ii])) return false;
+                        else if(x > get<1>(line[ii])) {
+                            ii = (ii+1)%line.size();
+                            jj++;
+                        }
+                            else {
+                            ii = (ii-1)%line.size();
+                            jj++;
+                        }
                     }
+                    return false;
                 }
             }else if(y == get<0>(col[i]) || y == get<1>(col[i])) return false;
-            else if(y > get<1>(col[i])) i = (i+1)%col.size(); //forward
-            else i = (i-1)%col.size(); //back
+            else if(y > get<1>(col[i])){
+                i = (i+1)%col.size(); //forward
+                j++;
+            } 
+            else {
+                i = (i-1)%col.size(); //back
+                j++;
+            }
         }
+        return false;
     }
     
 }
