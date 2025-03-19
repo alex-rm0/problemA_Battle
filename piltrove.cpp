@@ -50,17 +50,58 @@ void insertBloker(int x, int y, vector<vector<tuple<int, int, bool>>> &noGoLine,
     }
 }
 
-bool insertTurrets(int x, int y, char t, vector<vector<tuple<int, int, bool>>> &noGoLine, vector<vector<tuple<int, int, bool>>> &noGoCol){
-    int n = t - '0';
-    for (int i = 0; i < 4 ; i++){
-        if (4-i<n) return false;
-        if (n<=0) break;
-        //auto segments = noGoLine.find(); to be changed
-        //if (segments != noGoLine.end());
-    }
+bool isBarrier(char cell) {
+    return (cell == '#' || isdigit(cell));
+}
 
-    turrets += t - '0';  
-    return true;
+// Label contiguous empty segments in each line.
+// Outposts and walls act as segment boundaries.
+void labelLineSegments(const vector<string>& board, vector<vector<int>>& lineLabels) {
+    int label = 0;
+    for (int i = 0; i < nl; i++) {
+        int j = 0;
+        while (j < nc) {
+            // Start a new segment if we hit an empty cell.
+            if (board[i][j] == '.') {
+                label++;  // New label for this contiguous segment.
+                int k = j;
+                // Fill all contiguous empty cells until we hit a barrier.
+                while (k < nc && board[i][k] == '.') {
+                    lineLabels[i][k] = label;
+                    k++;
+                }
+                j = k; // Continue after the segment.
+            } else {
+                // Skip barriers.
+                j++;
+            }
+        }
+    }
+}
+
+// Label contiguous empty segments in each column.
+// Outposts and walls act as segment boundaries.
+void labelColumnSegments(const vector<string>& board, vector<vector<int>>& colLabels) {
+    int label = 0;
+    for (int j = 0; j < nc; j++) {
+        int i = 0;
+        while (i < nl) {
+            // Start a new segment if we hit an empty cell.
+            if (board[i][j] == '.') {
+                label++;  // New label for this contiguous segment.
+                int k = i;
+                // Fill all contiguous empty cells until we hit a barrier.
+                while (k < nl && board[k][j] == '.') {
+                    colLabels[k][j] = label;
+                    k++;
+                }
+                i = k; // Continue after the segment.
+            } else {
+                // Skip barriers.
+                i++;
+            }
+        }
+    }
 }
 int main() {
     int n_test_cases;
@@ -71,18 +112,20 @@ int main() {
         cin >> nl;
         cin >> nc;
 
-        vector<vector<tuple<int, int, bool>>> noGoLine; //y 
-        vector<vector<tuple<int, int, bool>>> noGoCol;  //x
-        noGoLine.resize(nl);
-        noGoCol.resize(nc);
+        //vector<vector<tuple<int, int, bool>>> noGoLine; //y 
+        //vector<vector<tuple<int, int, bool>>> noGoCol;  //x
+        //noGoLine.resize(nl);
+        //noGoCol.resize(nc);
         string line;
-        queue<tuple<int, int , char>> startingTurrets;
+        //queue<tuple<int, int , char>> startingTurrets;
+        vector<string> board;
 
         //ler a grid e para cada objeto fazer pré processamento
         for (int y = 0; y < nl; y++) {
             getline(cin,line);
-            for(int x; x < nc; x++ ){
-                if (isdigit(line[x]) ){
+            board.push_back(line);
+            /*for(int x; x < nc; x++ ){
+                /*if (isdigit(line[x]) ){
                     //add tower/bloker
                     insertBloker(x, y, noGoLine, noGoCol);
                     //add n turrets around the tower to the queue
@@ -90,7 +133,7 @@ int main() {
                 }
                 if (line[x] =='#') insertBloker(x, y, noGoLine, noGoCol);
             }
-            while (!startingTurrets.empty()){
+            /*while (!startingTurrets.empty()){
                 auto ts = startingTurrets.front();
                 if((notPossible = !insertTurrets(get<0>(ts), get<1>(ts), get<2>(ts), noGoLine, noGoCol))) {
                     cout << "noxus will rise!\n";
@@ -99,8 +142,15 @@ int main() {
                 
             }
             
-            if (notPossible) continue;
+            if (notPossible) continue;*/
+
+            vector<vector<int>> rowLabels(nl, vector<int>(nc, 0));
+            vector<vector<int>> colLabels(nl, vector<int>(nc, 0));
+            labelRowSegments(board, rowLabels);
+            labelColumnSegments(board, colLabels);
         }
+
+
     }
 
     //debugging
