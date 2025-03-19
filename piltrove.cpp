@@ -22,8 +22,8 @@ void insertBloker(int x, int y, vector<vector<tuple<int, int, bool>>> &noGoLine,
         col.push_back(make_tuple(0, y, false));
         col.push_back(make_tuple(y, n, false));
     }else{
-        int i = 0, j = 0;
-        int part = y/ m-1/col.size();
+        int j = 0;
+        int i = y/ m-1/col.size();
         while (j<col.size()) {//i = (i+1)%col.size()) cicles forward 
             if(y > get<0>(col[i]) && y < get<1>(col[i])){
                 col.insert(col.begin() + i+1 , make_tuple(y,get<1>(col[i]), false));
@@ -45,8 +45,8 @@ void insertBloker(int x, int y, vector<vector<tuple<int, int, bool>>> &noGoLine,
         line.push_back(make_tuple(0, x, false));
         line.push_back(make_tuple(x, m, false));
     }else{
-        int i= 0, j = 0;
-        int part = x/ n-1/line.size();
+        int j = 0;
+        int i = x/ m-1/col.size();
         while (j < line.size()) {//i = (i+1)%line.size() cicles forward 
             if(x > get<0>(line[i]) && x < get<1>(line[i])){
                 line.insert(line.begin() + i+1 , make_tuple(x, get<1>(line[i]), false));
@@ -73,8 +73,8 @@ bool canPlaceTurret(int x, int y) {
             line.push_back(make_tuple(0, m, true));
             return true;
         }else{
-            int i= 0, j = 0;
-            int part = x/ n-1/line.size();
+            int j = 0;
+            int i = x/ m-1/col.size();
             while (j < line.size()) {//i = (i+1)%line.size() cicles forward 
                 if(x > get<0>(line[i]) && x < get<1>(line[i])){
                     col.push_back(make_tuple(0, n, true));
@@ -93,8 +93,8 @@ bool canPlaceTurret(int x, int y) {
         }
 
     }else{
-        int i = 0, j = 0;
-        int part = y/ m-1/col.size();
+        int j = 0;
+        int i = y/ m-1/col.size();
         while (j<col.size()) {//i = (i+1)%col.size()) cicles forward 
             if(y > get<0>(col[i]) && y < get<1>(col[i])){
                 if (noGoLine.empty()) {
@@ -102,7 +102,8 @@ bool canPlaceTurret(int x, int y) {
                     get<2>(col[i]) = true;
                     return true;
                 }else{
-                    int ii = 0, jj = 0;
+                    int jj = 0;
+                    int ii = x/ m-1/col.size();
                     while (jj < line.size()) {//i = (i+1)%line.size() cicles forward 
                         if(x > get<0>(line[ii]) && x < get<1>(line[ii])){
                             get<2>(col[ii]) = true;
