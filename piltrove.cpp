@@ -56,7 +56,7 @@ bool canPlaceTurret(int x, int y) {
     vector <tuple<int, int, bool>> &col = noGoCol[x];
     vector <tuple<int, int, bool>> &line = noGoLine[y];
     if (col.empty()) {
-        if (noGoLine.empty()) {
+        if (line.empty()) {
             col.push_back(make_tuple(0, n, true));
             line.push_back(make_tuple(0, m, true));
             return true;
@@ -74,24 +74,31 @@ bool canPlaceTurret(int x, int y) {
             }
         }
 
-
     }else{
         int i= 0;
         int part = y/ m-1/col.size();
         while (i<col.size()) {//i = (i+1)%col.size()) cicles forward 
             if(y > get<0>(col[i]) && y < get<1>(col[i])){
-                col.insert(col.begin() + i+1 , make_tuple(y,get<1>(col[i]), false));
-                get<1>(col[i]) = y;
-                break;
-            }else if(y == get<0>(col[i]) || y == get<1>(col[i])) break;
+                if (noGoLine.empty()) {
+                    line.push_back(make_tuple(0, m, true));
+                    get<2>(col[i]) = true;
+                    return true;
+                }else{
+                    while (i < line.size()) {//i = (i+1)%line.size() cicles forward 
+                        if(x > get<0>(line[i]) && x < get<1>(line[i])){
+                            get<2>(col[i]) = true;
+                            get<2>(line[i]) = true;
+                        }else if(x == get<0>(line[i]) || x == get<1>(line[i])) return false;
+                        else if(x > get<1>(line[i])) i = (i+1)%line.size();
+                        else i = (i-1)%line.size();
+                    }
+                }
+            }else if(y == get<0>(col[i]) || y == get<1>(col[i])) return false;
             else if(y > get<1>(col[i])) i = (i+1)%col.size(); //forward
             else i = (i-1)%col.size(); //back
         }
     }
     
-
-    }
-    return true;
 }
 
 void updateOutpostCount(int i, int j, int delta) {
@@ -133,46 +140,24 @@ bool checkAllOutposts() {
     return true;
 }
 
-bool isCovered(int i, int j) {
-    //left
-    for (int k = j - 1; k >= 0; k--) {
-        if (board[i][k] == '#' || isdigit(board[i][k]))
-            break;
-        if (solution[i][k] == 'R')
-            return true;
-    }
-    //right
-    for (int k = j + 1; k < m; k++) {
-        if (board[i][k] == '#' || isdigit(board[i][k]))
-            break;
-        if (solution[i][k] == 'R')
-            return true;
-    }
-    //up
-    for (int k = i - 1; k >= 0; k--) {
-        if (board[k][j] == '#' || isdigit(board[k][j]))
-            break;
-        if (solution[k][j] == 'R')
-            return true;
-    }
-    //down
-    for (int k = i + 1; k < n; k++) {
-        if (board[k][j] == '#' || isdigit(board[k][j]))
-            break;
-        if (solution[k][j] == 'R')
-            return true;
-    }
-    return false;
-}
-
 bool checkCoverage() {
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < m; j++) {
-            if (board[i][j] == '.' && solution[i][j] != 'R') {
-                if (!isCovered(i, j))
-                    return false;
+    int size = max(n,m);
+    for (int i = 0; i < size; i++) {
+        if (i < noGoCol.size() && noGoCol[i].empty()) return false;
+        if (i < noGoLine.size() && noGoLine[i].empty()) return false;
+
+        if (i < noGoCol.size()){
+            for (auto segment : noGoCol[i]){
+                if (!get<2>(segment)) return false;
+            }
+        } 
+
+        if (i < noGoLine.size()){
+            for (auto segment : noGoLine[i]){
+                if (!get<2>(segment)) return false;
             }
         }
+            
     }
     return true;
 }
@@ -237,7 +222,7 @@ int main() {
         for (int y = 0; y < n; y++) {
             getline(cin,line);
             board.push_back(line);
-            for(int x; x < m; x++ ){
+            for(int x = 0; x < m; x++ ){
                 if (isdigit(line[x]) ){
                     //add tower/bloker
                     insertBloker(x, y, noGoLine, noGoCol);
