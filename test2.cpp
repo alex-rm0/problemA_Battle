@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <cctype>   // for isdigit
 using namespace std;
 
 // Global board dimensions and data
